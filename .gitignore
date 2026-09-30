@@ -18,3 +18,5 @@ tsconfig.tsbuildinfo
 *.log
 .vscode/
 .idea/
+
+.txt
