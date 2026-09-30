@@ -11,7 +11,7 @@ interface UseSpeechRecognitionResult {
   resetTranscript: () => void;
 }
 
-export function useSpeechRecognition(): UseSpeechRecognitionResult {
+export function useSpeechRecognition(lang: string = "en-US"): UseSpeechRecognitionResult {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -31,7 +31,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     const recognition = new SpeechRecognitionCtor();
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = lang;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const text = Array.from(event.results)
@@ -49,7 +49,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionResult {
     return () => {
       recognition.stop();
     };
-  }, []);
+  }, [lang]);
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current) return;

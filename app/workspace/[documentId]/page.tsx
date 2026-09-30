@@ -76,7 +76,7 @@ export default function WorkspacePage({ params }: { params: { documentId: string
           <ExtractedFieldsPanel summary={document.summary} fields={document.extracted_fields} />
         </div>
         <div className="lg:col-span-1 lg:min-h-[640px]">
-          <ChatPanel documentId={document.id} />
+          <ChatPanel documentId={document.id} language={document.language} />
         </div>
       </div>
     </div>

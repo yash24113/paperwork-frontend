@@ -14,6 +14,7 @@ export interface DocumentResponse {
   summary: string | null;
   status: DocumentStatus;
   storage_path: string;
+  language: string;
   created_at: string;
   updated_at: string;
   extracted_fields: ExtractedField[];

@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, MessageSquareText, Mic, ShieldCheck } from "lucide-react";
 import { UploadDropzone } from "../components/UploadDropzone";
+import { LanguageSelect } from "../components/LanguageSelect";
 import { uploadDocument } from "../lib/api";
+import { DEFAULT_LANGUAGE_CODE, getStoredLanguage, storeLanguage } from "../lib/languages";
 
 const FEATURES = [
   {
@@ -28,12 +30,22 @@ export default function LandingPage() {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState(DEFAULT_LANGUAGE_CODE);
+
+  useEffect(() => {
+    setLanguage(getStoredLanguage());
+  }, []);
+
+  const handleLanguageChange = (code: string) => {
+    setLanguage(code);
+    storeLanguage(code);
+  };
 
   const handleFileSelected = async (file: File) => {
     setIsUploading(true);
     setError(null);
     try {
-      const document = await uploadDocument(file);
+      const document = await uploadDocument(file, language);
       router.push(`/workspace/${document.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed, please try again");
@@ -45,7 +57,7 @@ export default function LandingPage() {
     <div className="mx-auto flex max-w-4xl flex-col items-center gap-14 px-6 pb-24 pt-16 sm:pt-24">
       <div className="text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700">
-          <ShieldCheck size={14} /> Built with Gemini 2.0 Flash
+          <ShieldCheck size={14} /> Built with Gemini
         </span>
         <h1 className="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
           Paperwork, finally explained.
@@ -56,7 +68,10 @@ export default function LandingPage() {
         </p>
       </div>
 
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl space-y-3">
+        <div className="flex justify-end">
+          <LanguageSelect value={language} onChange={handleLanguageChange} disabled={isUploading} />
+        </div>
         <UploadDropzone onFileSelected={handleFileSelected} isUploading={isUploading} error={error} />
       </div>
 

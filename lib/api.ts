@@ -10,9 +10,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function uploadDocument(file: File): Promise<DocumentResponse> {
+export async function uploadDocument(file: File, language?: string): Promise<DocumentResponse> {
   const formData = new FormData();
   formData.append("file", file);
+  if (language) formData.append("language", language);
 
   const response = await fetch(`${API_URL}/documents/upload`, {
     method: "POST",
@@ -31,11 +32,15 @@ export async function listDocuments(): Promise<DocumentListItem[]> {
   return handleResponse<DocumentListItem[]>(response);
 }
 
-export async function askQuestion(documentId: string, question: string): Promise<ChatResponse> {
+export async function askQuestion(
+  documentId: string,
+  question: string,
+  language?: string
+): Promise<ChatResponse> {
   const response = await fetch(`${API_URL}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ document_id: documentId, question }),
+    body: JSON.stringify({ document_id: documentId, question, language }),
   });
   return handleResponse<ChatResponse>(response);
 }

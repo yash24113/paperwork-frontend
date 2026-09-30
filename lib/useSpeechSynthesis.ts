@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 interface UseSpeechSynthesisResult {
   isSupported: boolean;
   isSpeaking: boolean;
-  speak: (text: string) => void;
+  speak: (text: string, lang?: string) => void;
   cancel: () => void;
 }
 
@@ -18,12 +18,13 @@ export function useSpeechSynthesis(): UseSpeechSynthesisResult {
   }, []);
 
   const speak = useCallback(
-    (text: string) => {
+    (text: string, lang?: string) => {
       if (!isSupported || !text) return;
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 1;
       utterance.pitch = 1;
+      if (lang) utterance.lang = lang;
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);

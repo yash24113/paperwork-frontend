@@ -9,21 +9,24 @@ import { VoiceButton } from "./VoiceButton";
 import { useSpeechRecognition } from "../lib/useSpeechRecognition";
 import { useSpeechSynthesis } from "../lib/useSpeechSynthesis";
 import { askQuestion } from "../lib/api";
+import { speechLangFor } from "../lib/languages";
 import type { ChatMessage } from "../lib/types";
 
 interface ChatPanelProps {
   documentId: string;
+  language?: string;
 }
 
-export function ChatPanel({ documentId }: ChatPanelProps) {
+export function ChatPanel({ documentId, language = "en" }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const speechLang = speechLangFor(language);
 
   const { isSupported, isListening, transcript, startListening, stopListening, resetTranscript } =
-    useSpeechRecognition();
+    useSpeechRecognition(speechLang);
   const { isSupported: speechOutSupported, isSpeaking, speak } = useSpeechSynthesis();
 
   useEffect(() => {
@@ -48,9 +51,9 @@ export function ChatPanel({ documentId }: ChatPanelProps) {
     setIsSending(true);
 
     try {
-      const response = await askQuestion(documentId, question);
+      const response = await askQuestion(documentId, question, language);
       setMessages((prev) => [...prev, { role: "assistant", content: response.answer }]);
-      speak(response.answer);
+      speak(response.answer, speechLang);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setMessages((prev) => prev.slice(0, -1));
